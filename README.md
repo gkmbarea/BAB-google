@@ -1,3 +1,5 @@
+APRESENTAÇÃO SLIDES: https://docs.google.com/presentation/d/1jU2Nid7jgLyfVGO9HTgUtHSsQLL0p_r5sq9eWKR8H6U/edit?usp=sharing
+
 # 🛡️ Proposta de Trabalho: Entendendo e Demonstrando o Binary Authorization for Borg (BAB)
 
 > **Resumo Executivo**: Apresentação acadêmica e técnica sobre o modelo de segurança da infraestrutura da Google focado no **Binary Authorization for Borg (BAB)**, demonstrando como garantir que apenas binários autorizados e verificados sejam executados em clusters de produção.
