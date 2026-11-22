@@ -26,8 +26,44 @@
 > A documentação pública descreve políticas que variam por serviço e controles compensatórios em alguns casos. A obrigatoriedade de testes, a seleção dos emissores e os campos do exemplo abaixo são escolhas da simulação.
 
 ---
+## 3. Exemplos de Funcionamento na Prática (Conceito BAB)
 
-## 🔄 3. Fluxo de Funcionamento e Demonstração Prática
+* **Bloqueio de implantação não revisada (Regra das Duas Pessoas):** Se um desenvolvedor escrever um código e tentar enviá-lo diretamente para produção sem a aprovação explícita de um segundo engenheiro no repositório central, o Borg bloqueia a inicialização do *job*.
+* **Prevenção de compilação local maliciosa:** Um administrador não consegue compilar um binário na própria máquina e subi-lo para o cluster. A política exige uma assinatura criptográfica provando que o artefato foi gerado pelo sistema de *build* central e isolado.
+* **Proteção de acesso a dados sensíveis:** Um serviço que lida com dados de clientes só recebe autorização para rodar com sua identidade de serviço se tanto o código-fonte quanto os arquivos de configuração do *job* tiverem um rastro de auditoria válido.
+* **Bypass em emergências (*Break-glass*):** Durante uma queda crítica de sistema, a equipe de resposta a incidentes pode usar um mecanismo de emergência para implantar uma correção rápida sem esperar o fluxo normal, mas a BAB registra o evento para auditoria imediata e monitoramento contínuo.
+
+## Equivalente Prático no Google Cloud (Binary Authorization)
+
+Para aplicar os mesmos princípios da BAB em ambientes Kubernetes (GKE) ou Cloud Run, utilizam-se políticas em YAML e atestados criptográficos.
+
+### Exemplo A: Política restritiva exigindo atestado de QA e Build
+
+Este exemplo de arquivo `policy.yaml` bloqueia qualquer imagem de contêiner por padrão, exceto as imagens oficiais do Google e aquelas que possuam uma assinatura digital do atestador `qa-approved`:
+
+```yaml
+admissionWhitelistPatterns:
+  - namePattern: gcr.io/google_containers/*
+defaultAdmissionRule:
+  evaluationMode: REQUIRE_ATTESTATION
+  enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG
+  requireAttestationsBy:
+    - projects/meu-projeto-gcp/attestors/qa-approved
+```
+
+### Exemplo B: Modo de auditoria (*Dry-Run* / *Continuous Verification*)
+
+Antes de bloquear deploys em produção, equipes costumam usar o modo de monitoramento apenas para registrar violações nos logs sem derrubar o fluxo de trabalho:
+
+```yaml
+defaultAdmissionRule:
+  evaluationMode: REQUIRE_ATTESTATION
+  enforcementMode: DRYRUN_AUDIT_LOG_ONLY
+  requireAttestationsBy:
+    - projects/meu-projeto-gcp/attestors/security-scan-passed
+```
+
+## 🔄 4. Fluxo de Funcionamento e Demonstração Prática
 
 ### Fluxo da Cadeia de Suprimentos com BAB
 
@@ -93,7 +129,7 @@ A atividade pode ser feita em sala, seguindo a política acima e usando a tabela
 
 ---
 
-## 📁 4. Estrutura do Repositório e Execução
+## 📁 5. Estrutura do Repositório e Execução
 
 O material da atividade está reunido no README. A simulação é manual e pode ser reproduzida com o diagrama, a política e os cenários da seção 3, sem instalar ferramentas ou acessar um cluster.
 
@@ -104,10 +140,18 @@ O material da atividade está reunido no README. A simulação é manual e pode 
 
 ---
 
-## 📚 5. Referências Técnicas
+## 📚 6. Referências Técnicas
 
-- Google Research. [Large-scale cluster management at Google with Borg](https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/)
-- Google Cloud. [Binary Authorization for Borg (em português)](https://docs.cloud.google.com/docs/security/binary-authorization-for-borg?hl=pt-br)
-- SLSA. [Especificação v1.2](https://slsa.dev/spec/v1.2/)
-- in-toto. [Especificação do framework de atestações](https://github.com/in-toto/attestation/tree/main/spec)
-- Google Cloud. [Visão geral do Binary Authorization para serviços do Google Cloud](https://cloud.google.com/binary-authorization/docs/overview)
+- Google Research. [Large-scale cluster management at Google with Borg](https://research.google)
+- Google Cloud. [Autorização binária para o Borg (em português)](https://google.com)
+- Google Cloud. [BeyondProd: uma nova abordagem para segurança nativa da nuvem](https://google.com)
+- Google Cloud. [Visão geral do Binary Authorization para serviços do Google Cloud](https://google.com)
+- Google Cloud. [Conceitos-chave do Binary Authorization](https://google.com)
+- Google Cloud. [Verificar o SLSA na validação contínua](https://google.com)
+- Google Cloud Blog. [Securing Cloud Run deployments with Binary Authorization](https://google.com)
+- SLSA. [Supply-chain Levels for Software Artifacts](https://slsa.dev)
+- SLSA. [Especificação v1.2](https://slsa.dev)
+- in-toto. [Especificação do framework de atestações](https://github.com)
+
+
+  
